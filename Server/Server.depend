@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1426342985 source:/home/luc/Raspberry/Server/main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<iostream>
+	<pthread.h>
+
