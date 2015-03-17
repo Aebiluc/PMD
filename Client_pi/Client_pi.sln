@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Serveur_PI", "Serveur_PI\Serveur_PI.vcxproj", "{DBAD2DE2-5982-4925-90D7-44E3F763DE91}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DBAD2DE2-5982-4925-90D7-44E3F763DE91}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DBAD2DE2-5982-4925-90D7-44E3F763DE91}.Debug|Win32.Build.0 = Debug|Win32
+		{DBAD2DE2-5982-4925-90D7-44E3F763DE91}.Release|Win32.ActiveCfg = Release|Win32
+		{DBAD2DE2-5982-4925-90D7-44E3F763DE91}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
