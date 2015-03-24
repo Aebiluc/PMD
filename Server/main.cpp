@@ -9,7 +9,8 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <pthread.h>
-
+#include <wiringPi.h>
+#include <softPwm.h>
 
 pthread_mutex_t suspend = PTHREAD_MUTEX_INITIALIZER;
 
@@ -24,6 +25,7 @@ void error(const char *msg)
 void* Client(void* arg){
 
     int n, sockfd, exit_code = 0;
+    int x = 0;
     sockfd = *((int*)arg);
     char buffer[255];
     string message;
@@ -40,8 +42,10 @@ void* Client(void* arg){
         else{
             message = buffer;
             cout << message << endl;
-
-            n = write(sockfd,"Message recu !",14);
+            x = atoi(message.c_str());
+            softPwmWrite(15,x);
+            message = "Message recu ! :" + message;
+            n = write(sockfd,message.c_str(),255);
             if (n < 0) error("ERROR writing to socket");
         }
     }
@@ -51,6 +55,11 @@ void* Client(void* arg){
 
 int main(int argc, char *argv[])
 {
+     wiringPiSetup();
+     pinMode(15,OUTPUT);
+     softPwmCreate(15,0,200);
+     digitalWrite(15,0);
+
      int sockfd, newsockfd, portno;
      pthread_t t1;
      socklen_t clilen;
