@@ -14,7 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
     Pi->Connect();
 
     connect(ui->Bt_send, SIGNAL(clicked()), this, SLOT(EnvoyerMessage()));
-    connect(Pi, SIGNAL(DonneeRecu(int,const char*)), this, SLOT(MessageRecu(int,const char*)));
+    connect(Pi, SIGNAL(DonneeRecu(QString)), this, SLOT(MessageRecu(QString)));
+    connect(Pi, SIGNAL(PositionServo(Pos_servo)), this, SLOT(PositionServo(Pos_servo)));
 }
 
 MainWindow::~MainWindow()
@@ -26,16 +27,39 @@ MainWindow::~MainWindow()
 void MainWindow::EnvoyerMessage()
 {
     QString message;
+    Trame_t Paquet;
+    std::string Conversion;
+
     message = ui->SendText->text();
-    Pi->Send(message);
+
+    Paquet.ms_type = 1;
+    Conversion = message.toStdString().c_str();
+    Paquet.size = message.length();
+    Paquet.Payload = Conversion.c_str();
+
+    ui->Console->append(message);
+    Pi->Send(Paquet);
     ui->SendText->clear();
+
+    /*
+    int z = 28;
+    Paquet.ms_type = 2;
+    Paquet.Payload = (const char*)&z;
+    Paquet.size = sizeof(z);
+    Pi->Send(Paquet);*/
+
 }
 
-void MainWindow::MessageRecu(int size, const char* Buffer)
+void MainWindow::MessageRecu(QString paquet)
+{    
+    ui->Console->append("Message recu : " + paquet);
+    //delete paquet.Payload;
+}
+
+void MainWindow::PositionServo(Pos_servo servo)
 {
-    const char* buffer = new char[size];
-    buffer = Buffer;
-    String retour(Buffer);
-    ui->Console->append("Message recu : " +retour );
-}
+    QString Afficher;
+    Afficher = QString::number(servo.servo_1);
 
+    ui->Console->append(Afficher);
+}
