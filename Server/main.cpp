@@ -34,7 +34,6 @@ typedef struct{
 }Commande;
 
 
-
 void error(const char *msg)
 {
     perror(msg);
@@ -103,6 +102,8 @@ void* Client(void* arg){
             exit_code = 1;
             return NULL;
         }
+
+
         test = (int)client_header.size;
         cout << "Nb byte lu : " << n << endl;
         cout << "Msg size : " << test << " type : " << (int)client_header.msg_type << endl;
