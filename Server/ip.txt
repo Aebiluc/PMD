@@ -1,0 +1,3 @@
+Addresse ip ethernet : 192.168.0.7
+Addresse ip wifi     : 192.168.2.1
+
