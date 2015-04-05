@@ -10,3 +10,16 @@
 	<iostream>
 	<pthread.h>
 
+1428264080 source:/home/luc/Raspberry/PMD/Server/main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<iostream>
+	<pthread.h>
+	<wiringPi.h>
+	<softPwm.h>
+

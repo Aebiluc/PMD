@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1427143218 source:/home/luc/Raspberry/PMD/Test_lampe/Test_Lampe/main.cpp
+	<iostream>
+	<wiringPi.h>
+
