@@ -24,7 +24,7 @@ Q_OBJECT
 public:
     Connection();
 
-    void Connect();
+    int Connect(QString adresse_ip, QString port);
     void Send(Trame_t message);
     ~Connection();
 
@@ -36,6 +36,7 @@ private slots:
 signals:
     void DonneeRecu(QString Paquet);
     void PositionServo(Pos_servo servo);
+    void Deconnect();
 
 private:
     QTcpSocket *socket;

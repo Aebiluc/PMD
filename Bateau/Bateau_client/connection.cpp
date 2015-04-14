@@ -5,18 +5,23 @@ Connection::Connection()
 ;
 }
 
-void Connection::Connect()
+int Connection::Connect(QString adresse_ip, QString port)
 {
     socket = new QTcpSocket();
     socket->abort();
-    socket->connectToHost("192.168.1.58", 9091);
+    socket->connectToHost(adresse_ip, port.toInt());
     qDebug() << "Tentative de connection" ;
+    if (socket->waitForConnected(1000))
+    {
+        qDebug() << "Connecté";
+        Serveur_r.size = 0;
 
-    Serveur_r.size = 0;
+        connect(socket, SIGNAL(disconnected()),this,SLOT(Deconnecte()));
+        connect(socket, SIGNAL(readyRead()),this,SLOT(Reception()));
 
-    connect(socket, SIGNAL(connected()), this, SLOT(Connecte()));
-    connect(socket, SIGNAL(disconnected()),this,SLOT(Deconnecte()));
-    connect(socket, SIGNAL(readyRead()),this,SLOT(Reception()));
+        return 0;
+    }
+    return 1;
 }
 
 Connection::~Connection()
@@ -32,6 +37,7 @@ void Connection::Connecte()
 void Connection::Deconnecte()
 {
     qDebug() << "Deconnecté";
+    emit Deconnect();
 }
 
 void Connection::Reception()
