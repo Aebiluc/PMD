@@ -14,6 +14,8 @@ using namespace std;
 
 typedef enum{AUTO, MANUEL}Process;
 typedef enum{Avance, Recule, Gauche, Droite}Nav;
+typedef enum{String = 1, Valeur, Position_servo}Requette;
+
 
 typedef struct {
     char size;
@@ -33,6 +35,7 @@ typedef struct{
     Nav navigation;
 }Commande;
 
+static int Send_position[4];
 
 void error(const char *msg)
 {
@@ -64,8 +67,8 @@ void* Maitre(void* arg)
 
 void* PosServo(void* arg)
 {
+    /*
     Commande Comm = *(Commande*)arg;
-    int Send_position[4];
     int i,j;
     j = 0;
     while(1)
@@ -77,7 +80,7 @@ void* PosServo(void* arg)
 
         SendTcp(Comm.Socket,2,4*sizeof(int),(char*)Send_position);
         sleep(1);
-    }
+    }*/
     return NULL;
 }
 
@@ -121,15 +124,18 @@ void* Client(void* arg){
         else
         {
             cout << "Nb byte lu : " << n << endl;
-            if (client_header.msg_type == 1){
+            if (client_header.msg_type == String){
                 messages.clear();
                 messages.append(buffer,test);
                 cout << messages << endl;
                 SendTcp(sockfd,1,messages.length(),messages.c_str());
             }
-            if (client_header.msg_type == 2){
+            if (client_header.msg_type == Valeur){
                 int valeur = (int)buffer[0];
                 cout << valeur << endl;
+            }
+            if (client_header.msg_type == Position_servo){
+                SendTcp(sockfd,2,4*sizeof(int),(char*)Send_position);
             }
         }
     }
