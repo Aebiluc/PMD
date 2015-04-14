@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPalette>
 #include "connection.h"
 
 namespace Ui {
@@ -20,10 +21,13 @@ private slots:
     void EnvoyerMessage();
     void MessageRecu(QString paquet);
     void PositionServo(Pos_servo);
+    void Connect();
+    void Deconnection();
 
 private:  
     Ui::MainWindow *ui;
     Connection *Pi;
+    QPalette labelPalette;
 
 };
 
