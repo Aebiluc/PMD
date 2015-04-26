@@ -50,9 +50,6 @@ void Connection::Reception()
         socket->read(&Serveur_r.size,1);
         socket->read(&Serveur_r.ms_type,1);
 
-        qDebug() << "Message de taille " << (int)Serveur_r.size << " en attente";
-        qDebug() << "De type " << (int)Serveur_r.ms_type;
-
     }
 
     if(Serveur_r.size != 0)
@@ -63,7 +60,6 @@ void Connection::Reception()
         Buffer.clear();
         Buffer.resize(Serveur_r.size);
         Buffer = socket->read(Serveur_r.size);
-        qDebug() << "Contenu du buffer " << Buffer;
     }
 
 
@@ -76,13 +72,14 @@ void Connection::Reception()
     else if (Serveur_r.ms_type == 2)
     {
         Pos_servo servo;
-        /*QDataStream flux(&Buffer,QIODevice::ReadWrite);
-
+        QDataStream flux(&Buffer,QIODevice::ReadWrite);
+        flux.setByteOrder(QDataStream::LittleEndian);
         flux >> servo.servo_1 ;
         flux >> servo.servo_2 ;
         flux >> servo.servo_3 ;
-        flux >> servo.servo_4 ;*/
-        servo.servo_1 = *Buffer;
+        flux >> servo.servo_4 ;
+
+        //servo.servo_1 = *Buffer;
 
         Serveur_r.size = 0;
         emit PositionServo(servo);

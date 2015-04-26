@@ -23,8 +23,14 @@ private slots:
     void PositionServo(Pos_servo);
     void Connect();
     void Deconnection();
+    void Scroll1(int value);
+    void Scroll2(int value);
+    void Scroll3(int value);
+    void Scroll4(int value);
 
 private:  
+    void SendManuelPosition(int value, int servo_ID);
+
     Ui::MainWindow *ui;
     Connection *Pi;
     QPalette labelPalette;
