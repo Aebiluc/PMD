@@ -18,7 +18,8 @@ public:
 
 private slots:
     void EnvoyerMessage();
-    void MessageRecu(int size, const char* Buffer);
+    void MessageRecu(QString paquet);
+    void PositionServo(Pos_servo);
 
 private:  
     Ui::MainWindow *ui;
