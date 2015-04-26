@@ -10,6 +10,7 @@
 #include <wiringPi.h>
 #include <softPwm.h>
 
+
 using namespace std;
 
 typedef enum{AUTO, MANUEL}Process;
@@ -20,8 +21,12 @@ typedef enum{String = 1, Valeur, Position_servo}Requette;
 typedef struct {
     char size;
     char msg_type;
-
 }tcp_header;
+
+typedef struct {
+    int valeur;
+    int servo;
+}tcp_changement_pos;
 
 typedef struct{
     int Pos_act;
@@ -30,20 +35,21 @@ typedef struct{
 
 typedef struct{
     int Socket;
+    //std::array<Servo_t,4> Position_servo;
     Servo_t Position_servo[4];
     Process process;
     Nav navigation;
 }Commande;
 
-static int Send_position[4];
+Commande PI;
 
 void error(const char *msg)
 {
     perror(msg);
-    exit(1);
+    //exit(1);
 }
 
-void SendTcp(int FD, char msg_type, char msg_size, const char* Payload)
+void SendTcp(int FD, char msg_type, char msg_size, void* Payload)
 {
     int n;
     tcp_header client_header;
@@ -51,12 +57,11 @@ void SendTcp(int FD, char msg_type, char msg_size, const char* Payload)
     client_header.msg_type = msg_type;
     client_header.size = msg_size;
 
-    n = write(FD,&client_header,sizeof(client_header));
+    n = send(FD,&client_header,sizeof(client_header),0);
     if (n < 0) error("ERROR writing to socket");
 
-    n = write(FD,Payload,client_header.size);
+    n = send(FD,Payload,client_header.size,0);
     if (n < 0) error("ERROR writing to socket");
-
 }
 
 
@@ -67,20 +72,39 @@ void* Maitre(void* arg)
 
 void* PosServo(void* arg)
 {
+    int sendposition[4];
+    int i;
+    bool SendFlag = false;
     /*
-    Commande Comm = *(Commande*)arg;
-    int i,j;
-    j = 0;
+    sendposition[0] = 3;
+    sendposition[1] = 56;
+    sendposition[2] = 34;
+    sendposition[3] = 98;
+
+    SendTcp(PI.Socket,2,4*sizeof(int), sendposition);
+    */
+
     while(1)
     {
-        Comm.Position_servo[0].Pos_act = j++;
+        for(i=0;i<4;i++)
+            PI.Position_servo[i].Pos_act = PI.Position_servo[i].Pos_com;
 
-        for(i=0;i<3;i++)
-            Send_position[i] = Comm.Position_servo[i].Pos_act;
+        for(i=0;i<4;i++)
+        {
+            if(sendposition[i] != PI.Position_servo[i].Pos_act){
+                sendposition[i] = PI.Position_servo[i].Pos_act;
+                SendFlag = true;
+            }
+        }
 
-        SendTcp(Comm.Socket,2,4*sizeof(int),(char*)Send_position);
-        sleep(1);
-    }*/
+        if ( SendFlag == true)
+        {
+            SendTcp(PI.Socket,2,4*sizeof(int), sendposition);
+            SendFlag = false;
+        }
+
+        usleep(10000);
+    }
     return NULL;
 }
 
@@ -88,13 +112,13 @@ void* Client(void* arg){
 
     int n, sockfd, exit_code = 0, test;
 
-    Commande CommandeBateau;
-
     tcp_header client_header;
+    tcp_changement_pos Chang_position;
 
     sockfd = *((int*)arg);
     char buffer[255];
     string messages;
+    bzero(buffer,256);
 
     while(exit_code != 1)
     {
@@ -128,14 +152,22 @@ void* Client(void* arg){
                 messages.clear();
                 messages.append(buffer,test);
                 cout << messages << endl;
-                SendTcp(sockfd,1,messages.length(),messages.c_str());
+                SendTcp(sockfd,1,messages.length(),(void*)messages.c_str());
             }
             if (client_header.msg_type == Valeur){
                 int valeur = (int)buffer[0];
                 cout << valeur << endl;
             }
-            if (client_header.msg_type == Position_servo){
-                SendTcp(sockfd,2,4*sizeof(int),(char*)Send_position);
+
+            /*Message recu lors d'une commande manuel pour changer la position des servos*/
+            if (client_header.msg_type == 3){
+
+                Chang_position = *(tcp_changement_pos*)buffer;
+
+                cout << "Servo ID :" << Chang_position.servo << endl;
+                cout << "Value    :" << Chang_position.valeur << endl;
+
+                PI.Position_servo[Chang_position.servo - 1].Pos_com = Chang_position.valeur;
             }
         }
     }
@@ -146,7 +178,6 @@ int main(int argc, char *argv[])
 {
      int sockfd, newsockfd, portno;
      pthread_t t1, ServoT;
-     static Commande CommPi;
 
      socklen_t clilen;
      struct sockaddr_in serv_addr, cli_addr;
@@ -182,12 +213,12 @@ int main(int argc, char *argv[])
 
          cout << "New connection" << endl;
 
-         CommPi.Socket = newsockfd;
+         PI.Socket = newsockfd;
 
          //bzero(buffer,256);
 
          pthread_create(&t1, NULL, Client, (void*) &newsockfd) ;
-         pthread_create(&ServoT, NULL, PosServo, (void*) &CommPi );
+         pthread_create(&ServoT, NULL, PosServo, (void*) NULL);
          pthread_join(t1,0);
          close(newsockfd);
      }
